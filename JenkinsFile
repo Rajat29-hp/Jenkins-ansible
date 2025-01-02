@@ -1,0 +1,34 @@
+pipeline {
+    agent {
+        label 'ansible-node'
+    }
+
+    stages {
+        stage('git checkout') {
+            steps {
+                checkout scm
+            }
+         }
+        stage('Run Ansible Playbook') {
+            steps {
+                ansiblePlaybook{
+                    credentialsId: 'ansible-ssh'
+                    inventory: './inventory'
+                    playbook: './ftp.yml'
+                }
+            }
+        }
+
+         post('view web page') {
+            always {
+                archiveArtifacts '.logs'
+            }
+            success {
+                echo 'Playbook executed Successfully'
+            }
+            success {
+                echo 'Playbook executed failed'
+            }
+        }
+    }
+}
